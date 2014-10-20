@@ -6,6 +6,9 @@
 package primoscirculares;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -13,7 +16,6 @@ import java.util.ArrayList;
  */
 public class PrimosCirculares {
 
-    private static boolean[] isPrimeNumber;
     private static ArrayList<Integer> possiblePrimeCircular = new ArrayList<>();
 
     public static synchronized void addPossiblePrimeCircular(ArrayList<Integer> numbers) {
@@ -24,19 +26,12 @@ public class PrimosCirculares {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws InterruptedException {
-        GetPossibleCircularPrimes();
+        PrimeCircularCommon.isPrime(111);
+        checkThreadsForFinalization(getThreads());
+        getCircularNumbers();
     }
 
-    private static void GetPossibleCircularPrimes() throws InterruptedException {
-        ArrayList<Thread> threads = new ArrayList<Thread>();
-        int j = 0;
-        for (int i = 0; i <= 20; i++) {
-            Runnable task = new CircularNumberFinderRunnable(j, j += 50000);
-            Thread worker = new Thread(task);
-            worker.setName("Task_" + i);
-            worker.start();
-            threads.add(worker);
-        }
+    private static void checkThreadsForFinalization(ArrayList<Thread> threads) throws InterruptedException {
         boolean isThereThreadRunning = true;
         while (isThereThreadRunning) {
             for (Thread thread : threads) {
@@ -55,66 +50,73 @@ public class PrimosCirculares {
         }
     }
 
-    /**
-     * Metodo Criba de Eratóstenes:
-     * http://es.wikipedia.org/wiki/Criba_de_Erat%C3%B3stenes
-     */
-    public static ArrayList<Integer> getPossibleCircularPrimeNumbersUnder(int number) {
-        //Marco todos los números de la serie como primos
-        isPrimeNumber = new boolean[number + 1];
-        for (int i = 2; i <= number; i++) {
-            isPrimeNumber[i] = true;
+    private static ArrayList<Thread> getThreads() {
+        ArrayList<Thread> threads = new ArrayList<>();
+        int j = 0;
+        for (int i = 0; i <= 20; i++) {
+            Runnable task = new PrimeCircularNumberFinderRunnable(j, j += 50000);
+            Thread worker = new Thread(task);
+            worker.setName("Task_" + i);
+            worker.start();
+            threads.add(worker);
         }
-        //Tomo el primer numero como primo. 
-        //Si elevado al cuadrado es mayor o igual al numero dado, el algoritmo termina,
-        //sino, evaluo el arreglo buscando los múltiplos
-        for (int i = 2; i * i <= number; i++) {
-            for (int j = i; i * j <= number; j++) {
-                isPrimeNumber[i * j] = false;
-            }
-        }
-        ArrayList<Integer> primos = new ArrayList<>();
-        for (int i = 2; i <= number; i++) {
-            if (isPrimeNumber[i]) {
-                primos.add(i);
-            }
-        }
-        return primos;
+        return threads;
     }
 
-    private static ArrayList<Integer> getCircularNumbers(ArrayList<Integer> possibleCircularPrimeNumbers) {
-        ArrayList<Integer> circularPrimeNumbers = new ArrayList<>();
-
-        for (Integer number : possibleCircularPrimeNumbers) {
-            boolean isCircularNumber = false;
-
-            int[] rotations = getRotations(number);
-            for (int n : rotations) {
-                if (isPrimeNumber[n]) {
-                    isCircularNumber = true;
-                } else {
-                    isCircularNumber = false;
-                    break;
-                }
+    private static ArrayList<Integer> getCircularNumbers() {
+        Map<Integer, Boolean> numbersToCheck = GetDictionaryWithPossibleCircularPrimes();
+        ArrayList<Integer> circularPrimes = new ArrayList<>();
+        
+        for (Map.Entry<Integer, Boolean> element : numbersToCheck.entrySet()) {
+            if(element.getValue() ) continue;
+            int numberToCheck = (int)element.getKey();
+            if(isAllDigitsEquals(numberToCheck) ) {
+                circularPrimes.add(numberToCheck);
+                element.setValue(Boolean.TRUE);
+                continue;
             }
-            if (isCircularNumber) {
+            int[] rotations = PrimeCircularCommon.getRotations(numberToCheck);
+            if (PrimeCircularCommon.isCircularNumber(numberToCheck)) {
                 for (int n : rotations) {
-                    circularPrimeNumbers.add(n);
+                    circularPrimes.add(n);
                 }
             }
+            markAsChecked(numbersToCheck, rotations);
         }
-        return circularPrimeNumbers;
+        return circularPrimes;
     }
 
-    private static int[] getRotations(int number) {
-        String stringNumber = String.valueOf(number);
-        int totalRotations = stringNumber.length();
-        int[] rotations = new int[totalRotations];
-        String word = stringNumber;
-        for (int i = 0; i < totalRotations; i++) {
-            word = word.substring(1, word.length()) + word.charAt(0);
-            rotations[i] = Integer.parseInt(word);
+    private static Map<Integer, Boolean> GetDictionaryWithPossibleCircularPrimes() {
+        Map<Integer, Boolean> dictionary = new HashMap<Integer, Boolean>();
+        for(int i = 0; i < possiblePrimeCircular.size(); i++){
+            dictionary.put(possiblePrimeCircular.get(i), Boolean.FALSE);
         }
-        return rotations;
+        return dictionary;
+    }
+
+    private static void markAsChecked(Map<Integer, Boolean> numbersToCheck, int[] rotations) {
+        for (Map.Entry<Integer, Boolean> element : numbersToCheck.entrySet()) {
+            for(int number : rotations){
+                if(element.getKey() == number){
+                    element.setValue(Boolean.TRUE);
+                }
+            }
+            
+        }
+    }
+
+    private static boolean isAllDigitsEquals(Integer key) {
+        String stringNumber = Integer.toString(key);
+        int[] newGuess = new int[stringNumber.length()];
+        for (int i = 0; i < stringNumber.length(); i++) {
+            newGuess[i] = stringNumber.charAt(i) - '0';
+        }
+        
+        for(int i=1; i<newGuess.length; i++){
+            if(newGuess[0] != newGuess[i]){
+                return false;
+            }
+        }
+        return true;
     }
 }
