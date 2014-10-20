@@ -18,17 +18,18 @@ public class PrimosCirculares {
 
     private static ArrayList<Integer> possiblePrimeCircular = new ArrayList<>();
 
-    public static synchronized void addPossiblePrimeCircular(ArrayList<Integer> numbers) {
-        possiblePrimeCircular.addAll(numbers);
-    }
-
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws InterruptedException {
-        PrimeCircularCommon.isPrime(111);
-        checkThreadsForFinalization(getThreads());
+        final int threadCount = 20;
+        final int elementsCount = 50000;
+        checkThreadsForFinalization(getThreads(threadCount, elementsCount));
         getCircularNumbers();
+    }
+    
+    public static synchronized void addPossiblePrimeCircular(ArrayList<Integer> numbers) {
+        possiblePrimeCircular.addAll(numbers);
     }
 
     private static void checkThreadsForFinalization(ArrayList<Thread> threads) throws InterruptedException {
@@ -50,11 +51,11 @@ public class PrimosCirculares {
         }
     }
 
-    private static ArrayList<Thread> getThreads() {
+    private static ArrayList<Thread> getThreads(int threadCount, int elementCount) {
         ArrayList<Thread> threads = new ArrayList<>();
         int j = 0;
-        for (int i = 0; i <= 20; i++) {
-            Runnable task = new PrimeCircularNumberFinderRunnable(j, j += 50000);
+        for (int i = 0; i <= threadCount; i++) {
+            Runnable task = new PrimeCircularNumberFinderRunnable(j, j += elementCount);
             Thread worker = new Thread(task);
             worker.setName("Task_" + i);
             worker.start();
@@ -107,13 +108,13 @@ public class PrimosCirculares {
 
     private static boolean isAllDigitsEquals(Integer key) {
         String stringNumber = Integer.toString(key);
-        int[] newGuess = new int[stringNumber.length()];
+        int[] vectorNumber = new int[stringNumber.length()];
         for (int i = 0; i < stringNumber.length(); i++) {
-            newGuess[i] = stringNumber.charAt(i) - '0';
+            vectorNumber[i] = stringNumber.charAt(i) - '0';
         }
         
-        for(int i=1; i<newGuess.length; i++){
-            if(newGuess[0] != newGuess[i]){
+        for(int i=1; i<vectorNumber.length; i++){
+            if(vectorNumber[0] != vectorNumber[i]){
                 return false;
             }
         }
