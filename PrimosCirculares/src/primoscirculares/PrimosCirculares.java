@@ -17,13 +17,19 @@ public class PrimosCirculares {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        //ArrayList<Integer> primeNumbers = getPrimeNumbersBefore(1000000);
-        /*Hilos*/
-        FinderThread threadFinder_2 = new FinderThread("buscador_2", 2)
-        thread.start();
+        ArrayList<Integer> primeNumbers = getPrimeNumbersBetween(20, 100);
+        /*Hilos para obtener los posibles numeros circulares*/
+        /*int limiteHilos = 5;
+        ArrayList<Thread> threads = new ArrayList<Thread>();
+        for(int i = 0; i <= limiteHilos; i++){
+            Runnable task = new CircularNumberFinderRunnable(primeNumbers);
+            Thread worker = new Thread(task);
+            worker.setName("Task_" + i);
+            worker.start();
+            threads.add(worker);
+        }*/
         
-        //removeNumbersWith(0, primeNumbers.subList(0, 10));
-        //removeNumbersWith(0, primeNumbers.subList(10, 20));
+        
         
         //ArrayList<Integer> possibleCircularNumbers = primeNumbers;
         /*Hilos*/
@@ -35,7 +41,7 @@ public class PrimosCirculares {
     /**
      Metodo Criba de Eratóstenes: http://es.wikipedia.org/wiki/Criba_de_Erat%C3%B3stenes
      */   
-    public static ArrayList<Integer> getPrimeNumbersBefore(int number) 
+    public static ArrayList<Integer> getPrimeNumbersBetween(int number) 
     {
         //Marco todos los números de la serie como primos
         boolean[] isPrimeNumber = new boolean[number + 1];
@@ -62,23 +68,11 @@ public class PrimosCirculares {
         }
         return primos;
     }
+    
+   
 
     
-    private static void getPossibleCircularNumbers(ArrayList<Integer> primeNumbers) {
-        
-        for (Integer primeNumber : primeNumbers) {
-            String wordToCheck = String.valueOf(primeNumber);
-            if (wordToCheck.contains("0")
-                    || wordToCheck.contains("2")
-                    || wordToCheck.contains("4")
-                    || wordToCheck.contains("5")
-                    || wordToCheck.contains("6")
-                    || wordToCheck.contains("8")) {
-                primeNumber.
-            }
-        }
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+   
 
     private static void getCircularNumbers(ArrayList<Integer> possibleCircularNumbers) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
