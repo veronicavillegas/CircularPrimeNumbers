@@ -17,13 +17,13 @@ import java.util.Map;
 public class CircularPrimes {
 
     private static ArrayList<Integer> possiblePrimeCircular = new ArrayList<>();
-    private final static int maxElementsOnThread = 3;
+    private final static int maxElementsOnThread = 50000;
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws InterruptedException {
         final int primesFrom = 0;
-        final int primesUntil = 37;
+        final int primesUntil = 1000000;
 
         checkThreadsForFinalization(getThreads(primesFrom, primesUntil));
         ArrayList<Integer> circularPrimeNumbers = getCircularNumbers();
