@@ -9,7 +9,7 @@ package primoscirculares;
  *
  * @author vvillegas
  */
-public class PrimeCircularCommon {
+public class CircularPrimeCommon {
     
     public static boolean isPrime(int n) {
         if (n % 2 == 0) {
@@ -44,7 +44,7 @@ public class PrimeCircularCommon {
         boolean isCircularNumber = false;
         int[] rotations = getRotations(number);
         for (int n : rotations) {
-            if (PrimeCircularCommon.isPrime(n)) {
+            if (CircularPrimeCommon.isPrime(n)) {
                 isCircularNumber = true;
             } else {
                 isCircularNumber = false;

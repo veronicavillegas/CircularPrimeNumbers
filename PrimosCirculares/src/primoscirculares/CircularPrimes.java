@@ -14,7 +14,7 @@ import java.util.Map;
  *
  * @author Veronica
  */
-public class PrimosCirculares {
+public class CircularPrimes {
 
     private static ArrayList<Integer> possiblePrimeCircular = new ArrayList<>();
 
@@ -22,9 +22,10 @@ public class PrimosCirculares {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws InterruptedException {
-        final int threadCount = 20;
-        final int elementsCount = 50000;
-        checkThreadsForFinalization(getThreads(threadCount, elementsCount));
+        final int primesFrom = 0;
+        final int primesUntil = 100;
+        
+        checkThreadsForFinalization(getThreads(primesFrom, primesUntil));
         getCircularNumbers();
     }
     
@@ -51,17 +52,30 @@ public class PrimosCirculares {
         }
     }
 
-    private static ArrayList<Thread> getThreads(int threadCount, int elementCount) {
+    private static ArrayList<Thread> getThreads(int from, int until) {
         ArrayList<Thread> threads = new ArrayList<>();
-        int j = 0;
-        for (int i = 0; i <= threadCount; i++) {
-            Runnable task = new PrimeCircularNumberFinderRunnable(j, j += elementCount);
-            Thread worker = new Thread(task);
-            worker.setName("Task_" + i);
-            worker.start();
-            threads.add(worker);
+        int threadCount = 20;
+        
+        int elementCount = (until - from) / threadCount;
+        int untilTemp = from + elementCount + ( (until - from) % threadCount );
+        threads.add(getWorker(from, untilTemp));
+        for (int i = 1; i <= threadCount; i++) {
+            from = untilTemp;
+            untilTemp = from + elementCount;
+            threads.add(getWorker(from, untilTemp));
         }
         return threads;
+    }
+
+    private static int getThreadCount(){
+        int threadCount = 0;
+        return threadCount;
+    }
+    private static Thread getWorker(int from, int until) {
+        Runnable task = new CircularPrimeNumberFinderRunnable(from, until);
+        Thread worker = new Thread(task);
+        worker.start();
+        return worker;
     }
 
     private static ArrayList<Integer> getCircularNumbers() {
@@ -76,8 +90,8 @@ public class PrimosCirculares {
                 element.setValue(Boolean.TRUE);
                 continue;
             }
-            int[] rotations = PrimeCircularCommon.getRotations(numberToCheck);
-            if (PrimeCircularCommon.isCircularNumber(numberToCheck)) {
+            int[] rotations = CircularPrimeCommon.getRotations(numberToCheck);
+            if (CircularPrimeCommon.isCircularNumber(numberToCheck)) {
                 for (int n : rotations) {
                     circularPrimes.add(n);
                 }

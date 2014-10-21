@@ -11,13 +11,13 @@ import java.util.ArrayList;
  *
  * @author Veronica
  */
-public class PrimeCircularNumberFinderRunnable implements Runnable {
+public class CircularPrimeNumberFinderRunnable implements Runnable {
 
     private ArrayList<Integer> possibleCircularNumbers = new ArrayList<>();
     private int from;
     private int until;
 
-    public PrimeCircularNumberFinderRunnable(int from, int until) {
+    public CircularPrimeNumberFinderRunnable(int from, int until) {
         this.from = from;
         this.until = until;
     }
@@ -25,11 +25,11 @@ public class PrimeCircularNumberFinderRunnable implements Runnable {
     @Override
     public void run() {
         for (int i = from; i < until; i++) {
-            if (PrimeCircularCommon.isPrime(i) && PrimeCircularCommon.isPossibleToBeCircular(i)) {
+            if (CircularPrimeCommon.isPrime(i) && CircularPrimeCommon.isPossibleToBeCircular(i)) {
                 possibleCircularNumbers.add(i);
             }
         }
-        PrimosCirculares.addPossiblePrimeCircular(possibleCircularNumbers);
+        CircularPrimes.addPossiblePrimeCircular(possibleCircularNumbers);
     }
 
     
