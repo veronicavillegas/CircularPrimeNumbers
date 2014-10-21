@@ -17,18 +17,19 @@ import java.util.Map;
 public class CircularPrimes {
 
     private static ArrayList<Integer> possiblePrimeCircular = new ArrayList<>();
-
+    private final static int maxElementsOnThread = 3;
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws InterruptedException {
         final int primesFrom = 0;
-        final int primesUntil = 100;
-        
+        final int primesUntil = 37;
+
         checkThreadsForFinalization(getThreads(primesFrom, primesUntil));
-        getCircularNumbers();
+        ArrayList<Integer> circularPrimeNumbers = getCircularNumbers();
+        printResults(primesFrom, primesUntil, circularPrimeNumbers);
     }
-    
+
     public static synchronized void addPossiblePrimeCircular(ArrayList<Integer> numbers) {
         possiblePrimeCircular.addAll(numbers);
     }
@@ -54,12 +55,12 @@ public class CircularPrimes {
 
     private static ArrayList<Thread> getThreads(int from, int until) {
         ArrayList<Thread> threads = new ArrayList<>();
-        int threadCount = 20;
-        
-        int elementCount = (until - from) / threadCount;
-        int untilTemp = from + elementCount + ( (until - from) % threadCount );
+        int threadCount = getThreadCount(until - from);
+
+        int elementCount = (int) Math.floor((until - from) / threadCount);
+        int untilTemp = from + elementCount + ((until - from) % threadCount);
         threads.add(getWorker(from, untilTemp));
-        for (int i = 1; i <= threadCount; i++) {
+        for (int i = 1; i < threadCount; i++) {
             from = untilTemp;
             untilTemp = from + elementCount;
             threads.add(getWorker(from, untilTemp));
@@ -67,10 +68,11 @@ public class CircularPrimes {
         return threads;
     }
 
-    private static int getThreadCount(){
-        int threadCount = 0;
-        return threadCount;
+    private static int getThreadCount(int elementsCount) {
+        int countThread = (int) Math.floor(elementsCount / maxElementsOnThread);
+        return countThread == 0 ? 1 : countThread;
     }
+
     private static Thread getWorker(int from, int until) {
         Runnable task = new CircularPrimeNumberFinderRunnable(from, until);
         Thread worker = new Thread(task);
@@ -81,11 +83,13 @@ public class CircularPrimes {
     private static ArrayList<Integer> getCircularNumbers() {
         Map<Integer, Boolean> numbersToCheck = GetDictionaryWithPossibleCircularPrimes();
         ArrayList<Integer> circularPrimes = new ArrayList<>();
-        
+
         for (Map.Entry<Integer, Boolean> element : numbersToCheck.entrySet()) {
-            if(element.getValue() ) continue;
-            int numberToCheck = (int)element.getKey();
-            if(isAllDigitsEquals(numberToCheck) ) {
+            if (element.getValue()) {
+                continue;
+            }
+            int numberToCheck = (int) element.getKey();
+            if (isAllDigitsEquals(numberToCheck)) {
                 circularPrimes.add(numberToCheck);
                 element.setValue(Boolean.TRUE);
                 continue;
@@ -103,7 +107,7 @@ public class CircularPrimes {
 
     private static Map<Integer, Boolean> GetDictionaryWithPossibleCircularPrimes() {
         Map<Integer, Boolean> dictionary = new HashMap<Integer, Boolean>();
-        for(int i = 0; i < possiblePrimeCircular.size(); i++){
+        for (int i = 0; i < possiblePrimeCircular.size(); i++) {
             dictionary.put(possiblePrimeCircular.get(i), Boolean.FALSE);
         }
         return dictionary;
@@ -111,12 +115,12 @@ public class CircularPrimes {
 
     private static void markAsChecked(Map<Integer, Boolean> numbersToCheck, int[] rotations) {
         for (Map.Entry<Integer, Boolean> element : numbersToCheck.entrySet()) {
-            for(int number : rotations){
-                if(element.getKey() == number){
+            for (int number : rotations) {
+                if (element.getKey() == number) {
                     element.setValue(Boolean.TRUE);
                 }
             }
-            
+
         }
     }
 
@@ -126,12 +130,19 @@ public class CircularPrimes {
         for (int i = 0; i < stringNumber.length(); i++) {
             vectorNumber[i] = stringNumber.charAt(i) - '0';
         }
-        
-        for(int i=1; i<vectorNumber.length; i++){
-            if(vectorNumber[0] != vectorNumber[i]){
+
+        for (int i = 1; i < vectorNumber.length; i++) {
+            if (vectorNumber[0] != vectorNumber[i]) {
                 return false;
             }
         }
         return true;
+    }
+
+    private static void printResults(final int primesFrom, final int primesUntil, ArrayList<Integer> circularPrimes) {
+        System.out.printf("Count of circular prime numbers from %s to %s : %s \n\n", primesFrom, primesUntil, circularPrimes.size());
+        for (int element : circularPrimes) {
+            System.out.println(element);
+        }
     }
 }
